@@ -177,3 +177,7 @@ LassoCV(cv=5)
 ├── notebook.ipynb
 ├── README.md
 ```
+## 📥 Dataset Access
+
+Dataset is available on Kaggle:
+👉 https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques
