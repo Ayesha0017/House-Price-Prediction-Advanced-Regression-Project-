@@ -1,183 +1,167 @@
-# House Price Prediction (Advanced Regression Project)
+#  House Price Prediction — End-to-End Machine Learning Project
 
 ## Overview
 
-This project focuses on predicting house prices using advanced regression techniques on the Ames Housing dataset (Kaggle). The goal was to build a **robust, production-ready regression pipeline** while addressing real-world challenges like missing values, multicollinearity, and high-dimensional data.
+This project focuses on building an end-to-end machine learning pipeline to predict house prices using advanced regression techniques. The goal was not only to achieve high predictive accuracy but also to extract meaningful business insights from the data.
 
 ---
 
-## Objectives
+## Project Workflow
 
-* Build a high-performance regression model
-* Handle missing values effectively
-* Address multicollinearity
-* Apply feature engineering
-* Compare regularization techniques (Ridge vs Lasso)
-
----
-
-## Dataset
-
-* Source: Kaggle (Ames Housing Dataset)
-* ~1460 rows
-* 80+ original features → expanded to **200+ features after encoding**
+### 1. Exploratory Data Analysis (EDA)
+- Identified missing values and skewed distributions
+- Observed strong right-skew in target variable (SalePrice)
+- Detected relationships between price and key features
 
 ---
 
-## Data Preprocessing
-
-### Missing Value Handling
-
-* **Categorical (NA = absence):** Filled with `"None"`
-* **Numerical (absence-related):** Filled with `0`
-* **LotFrontage:** Filled with median
-* **Low-missing categorical:** Filled with mode
-
----
-
-### Feature Engineering
-
-* `HouseAge = YrSold - YearBuilt`
-* `RemodelAge = YrSold - YearRemodAdd`
-* `TotalBaths = FullBath + 0.5*HalfBath + BsmtFullBath + 0.5*BsmtHalfBath`
+### 2. Data Cleaning & Preprocessing
+- Handled missing values:
+  - Numerical → median / 0
+  - Categorical → mode
+- Feature transformations:
+  - Log transformation on target variable (`log1p`)
+- Converted ordinal categorical features using domain-based mapping
+- Applied One-Hot Encoding for nominal features
 
 ---
 
-### Encoding
-
-* **Ordinal Encoding:** Applied based on domain knowledge (quality, condition, etc.)
-* **One-Hot Encoding:** Applied to nominal categorical variables
-
----
-
-## Multicollinearity Handling
-
-* Initially evaluated using **VIF (Variance Inflation Factor)**
-* Highly correlated features were identified (e.g., basement & floor area breakdowns)
-* Some redundant features were removed
-
- However:
-
-* Final model uses **Ridge Regularization**, which inherently handles multicollinearity
-* Therefore, aggressive feature dropping was avoided to preserve signal
+### 3. Feature Engineering
+- Combined related features (e.g., total area)
+- Converted quality-based categorical variables into numerical scales
+- Reduced redundancy in highly correlated features
 
 ---
 
-## Target Transformation
+### 4️. Modeling Approach
 
-```python
-y = log(1 + SalePrice)
-```
+Multiple models were trained and compared:
 
-✔ Helps handle skewness
-✔ Improves model performance
+#### 🔹 Linear Models
+- Linear Regression
+- Ridge Regression
+- Lasso Regression
+- Elastic Net
 
----
+#### 🔹 Distance-Based Model
+- KNN Regressor
 
-## Modeling Approach
+#### 🔹 Tree-Based Models
+- Decision Tree Regressor
+- Random Forest Regressor
 
-### Linear Regression (Baseline)
-
-* Observed overfitting
-* Poor generalization
-
----
-
-### Ridge Regression (Regularization)
-
-```python
-RidgeCV(alphas=[0.1, 1, 10, 50, 100], cv=5)
-```
-
-* Handles multicollinearity
-* Shrinks coefficients
-* Improves stability
+#### 🔹 Boosting Models
+- Gradient Boosting
+- XGBoost
+- CatBoost
 
 ---
 
-### Lasso Regression (Feature Selection)
+### 5. Model Evaluation Metrics
 
-```python
-LassoCV(cv=5)
-```
-
-* Performs automatic feature selection
-* Reduces dimensionality
+- R² Score
+- RMSE (Root Mean Squared Error)
+- MAE (Mean Absolute Error)
 
 ---
 
-## Model Performance
+## Final Model Comparison
 
-| Model             | Train R² | Test R² | RMSE      |
-| ----------------- | -------- | ------- | --------- |
-| Linear Regression | ~0.92    | ~0.67   | High ❌    |
-| Ridge Regression  | ~0.92    | ~0.89   | ~24,988 ✅ |
-| Lasso Regression  | ~0.90    | ~0.89   | ~26,282 ✅ |
-
----
-
-## Key Insights
-
-* Regularization significantly improved generalization
-* Ridge performed slightly better in terms of RMSE
-* Lasso reduced feature count with minimal performance drop
-* Many engineered and encoded features were redundant
+| Model | Test R² |
+|------|--------|
+| CatBoost | **0.903** |
+| XGBoost | 0.897 |
+| Ridge | 0.892 |
+| Elastic Net | 0.891 |
+| Lasso | 0.890 |
+| Gradient Boosting | 0.887 |
+| Random Forest | 0.883 |
+| Decision Tree | 0.79 |
+| KNN | 0.78 |
 
 ---
 
-## Ridge vs Lasso
+##  Key Insights
 
-| Aspect            | Ridge           | Lasso               |
-| ----------------- | --------------- | ------------------- |
-| Multicollinearity | Handles well    | Selects one feature |
-| Feature Selection | ❌               | ✅                   |
-| Performance       | Slightly better | Comparable          |
-| Interpretability  | Lower           | Higher              |
+### 1. Quality is the strongest driver
+- **OverallQual** had the highest impact on price
+- Buyers prioritize construction quality over size
 
 ---
 
-## Final Conclusion
-
-* **Ridge Regression** chosen for best predictive performance
-* **Lasso Regression** useful for feature selection and interpretability
-
----
-
-## Key Learnings
-
-* Importance of handling multicollinearity
-* Impact of regularization on model stability
-* Feature engineering significantly boosts performance
-* Trade-off between performance and interpretability
+### 2. Living space matters
+- **GrLivArea, TotalBsmtSF**
+- Larger usable area → higher price
 
 ---
 
-## Future Improvements
+### 3. Garage features are critical
+- Garage capacity, area, and quality significantly influence price
 
-* Try **ElasticNet (Ridge + Lasso)**
-* Apply **feature importance analysis**
-* Use **tree-based models (XGBoost, LightGBM)**
-* Hyperparameter tuning with GridSearchCV
+---
+
+### 4. Interior quality impacts value
+- Kitchen quality, basement quality, fireplace condition
+- Interior upgrades strongly affect pricing
+
+---
+
+### 5. Comfort features add premium
+- Central Air Conditioning
+- Fireplaces
+
+---
+
+### 6. Location plays a role
+- Neighborhood and zoning features contribute to pricing
+
+---
+
+## Model Insights
+
+- **CatBoost performed best** due to handling complex interactions
+- **XGBoost showed similar strong performance**
+- **Linear models performed surprisingly well**, indicating strong linear relationships after preprocessing
+- **KNN and Decision Tree underperformed** due to:
+  - High dimensionality (KNN)
+  - Overfitting (Decision Tree)
+
+---
+
+## Key Learning
+
+> Effective feature engineering and preprocessing can make simple models perform nearly as well as complex models.
 
 ---
 
 ## Tech Stack
 
-* Python
-* Pandas, NumPy
-* Scikit-learn
-* Statsmodels
+- Python
+- Pandas, NumPy
+- Scikit-learn
+- XGBoost
+- CatBoost
+- Matplotlib
 
 ---
 
-## Project Structure
+## Conclusion
 
-```
-├── data/
-├── notebook.ipynb
-├── README.md
-```
-## 📥 Dataset Access
+Boosting models like CatBoost and XGBoost provided the best performance by capturing non-linear relationships and feature interactions. However, strong results from linear models highlight the importance of high-quality data preprocessing.
 
-Dataset is available on Kaggle:
-👉 https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques
+---
+
+## Future Improvements
+
+- Hyperparameter tuning with Bayesian Optimization
+- Feature selection using SHAP values
+- Deployment using Flask / Streamlit
+- Model explainability dashboards
+
+---
+
+## Author
+
+Ayesha Firdaus Honnur
+
+---
